@@ -1,0 +1,1 @@
+download mnist dataset from http://yann.lecun.com/exdb/mnist/ and unpack here
