@@ -26,3 +26,26 @@ class KNNClassifier:
         self.pca = PCA(pca_comp)
         self.pca.fit(data)
         return self.pca.transform(data)
+
+
+def crossvalidation_error(data, labels, folds, k, pca_comp):
+    from testClassifiers import class_error
+    errors = []
+    fold_size = round(data.shape[0] / folds)
+    for i in range(folds):
+        training_data = np.append(data[0:i * fold_size], data[(i + 1) * fold_size:], axis=0)
+        training_labels = np.append(labels[0:i * fold_size], labels[(i + 1) * fold_size:], axis=0)
+        test_data = data[i * fold_size:(i + 1) * fold_size]
+        test_labels = labels[i * fold_size:(i + 1) * fold_size]
+        knn = KNNClassifier(training_data, training_labels, k, pca_comp)
+        errors.append(class_error(knn, test_data, test_labels))
+    return np.mean(errors)
+
+
+def tune_hyperparams(data, labels):
+    folds = 10
+    errors = []
+    for k in range(1, 10):
+        for pca_comp in range(20, 100, 10):
+            errors.append([k, pca_comp, crossvalidation_error(data, labels, folds, k, pca_comp)])
+    return errors
